@@ -2,6 +2,7 @@
 #define RENDERER_HPP
 
 #include <cmath>
+#include <algorithm>
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 #include <iostream>
@@ -11,9 +12,26 @@
 #include "player.hpp"
 #include "utils.hpp"
 
+static int sector_id;
+
+enum quad_type_t {
+	FLOOR, WALL, CEILING
+};
 
 struct plane_t {
-	std::vector<int> t, b;
+	int t[1024], b[1024];
+};
+
+struct quad_t {
+	int ax, bx,
+	at, ab,
+	bt, bb;
+	unsigned color;
+	quad_type_t type;
+	plane_t* plane;
+	quad_t(int ax, int bx, int at, int ab, int bt, int bb, unsigned color, quad_type_t type, plane_t* plane);
+	void swapPoints();
+	void calcInterp(double& delta_height, double& delta_elevation);
 };
 
 struct wall_t {
@@ -22,6 +40,7 @@ struct wall_t {
 	double portal_bot_height;
 	bool is_portal;
 	wall_t(int ax, int ay, int bx, int by);
+	wall_t(int ax, int ay, int bx, int by, double pth, double pbh);
 };
 
 struct sector_t {
@@ -54,6 +73,9 @@ public:
 	void DrawLine(int x0, int y0, int x1, int y1, unsigned color);
 	void clear();
 	void DrawSectors(player_t& player);
+	void clipBehindPlayer(double& ax, double& ay, double bx, double by);
+	void rasterize(quad_t& q);
+	
 };
 
 #endif

@@ -15,19 +15,32 @@ Game::Game(unsigned width, unsigned height, unsigned target_fps) : width(width),
 	
 	player = new player_t(40.0, 40.0, height*10, M_PI/2);
 	renderer = new Renderer(*player, game_state, window);
-	sector_t s1(10, 0, 0xd6382d, 0xf54236, 0x9c2921);
+	sector_t s1(10, 1, 0xd6382d, 0xf54236, 0x9c2921);
+	sector_t s2(80, 0, 0x29ba48, 0x43f068, 0x209138);
+	
 	int s1v[4*4] = {
-		70, 220, 100, 220,
+		0, 220, 100, 220,
 		100, 220, 100, 240,
-		100, 240, 70, 240,
-		70, 240, 70, 220
+		100, 240, 0, 240,
+		0, 240, 0, 220
 	};
+	int s2v[4*4] = {
+		-30, 120, 40, 120,
+		40, 120, 40, 190,
+		40, 190, -30, 190,
+		-30, 190, -30, 120
+	};
+	
 	for(int i = 0; i < 16; i +=4 ) {
 		wall_t w(s1v[i], s1v[i+1], s1v[i+2], s1v[i+3]);
 		s1.AddWall(w);
+		wall_t p(s2v[i], s2v[i+1], s2v[i+2], s2v[i+3], 20.0, 10.0);
+		s2.AddWall(p);
 	}
 	
 	renderer->sector_queue.push_back(s1);
+	renderer->sector_queue.push_back(s2);
+
 }
 
 
@@ -72,10 +85,10 @@ void Game::pollInput() {
 	switch (event.type)
 	{
 		case SDL_KEYDOWN:
-			keys[event.key.keysym.sym] = true;
+			keys[event.key.keysym.scancode] = true;
 			break;
 		case SDL_KEYUP:
-			keys[event.key.keysym.sym] = false;
+			keys[event.key.keysym.scancode] = false;
 			break;
 		case SDL_QUIT:
 			game_state = QUIT;
